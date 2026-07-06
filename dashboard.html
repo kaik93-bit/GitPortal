@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - GitPortal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="dashboard">
+    <header class="dashboard-header">
+      <h1>Willkommen, <span id="welcome-name">...</span></h1>
+      <button id="logout-btn">Abmelden</button>
+    </header>
+
+    <section id="admin-panel" class="admin-panel" hidden>
+      <h2>Benutzerverwaltung</h2>
+
+      <form id="add-user-form" class="add-user-form">
+        <input type="text" id="new-username" placeholder="Benutzername" required>
+        <input type="password" id="new-password" placeholder="Passwort" required minlength="6">
+        <select id="new-role">
+          <option value="user">Nutzer</option>
+          <option value="admin">Admin</option>
+        </select>
+        <label class="checkbox-label">
+          <input type="checkbox" id="new-can-manage">
+          Darf Nutzer verwalten
+        </label>
+        <button type="submit">Nutzer hinzufügen</button>
+      </form>
+      <p id="add-user-error" class="error"></p>
+
+      <table class="user-table">
+        <thead>
+          <tr>
+            <th>Benutzername</th>
+            <th>Rolle</th>
+            <th>Status</th>
+            <th>Verwalten-Recht</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody id="user-table-body"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script type="module" src="dashboard.js"></script>
+</body>
+</html>
