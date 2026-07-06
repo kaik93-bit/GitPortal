@@ -11,42 +11,58 @@
 <body>
   <div class="scanlines"></div>
   <div class="dashboard">
-    <header class="dashboard-header">
-      <h1>Willkommen, <span id="welcome-name">...</span></h1>
-      <button id="logout-btn">&gt; Abmelden</button>
+    <header class="topbar">
+      <span class="topbar-title">GITPORTAL</span>
+      <button id="admin-btn" class="admin-btn" hidden>Admin</button>
     </header>
 
-    <section id="admin-panel" class="admin-panel" hidden>
-      <h2>Benutzerverwaltung</h2>
+    <div class="dashboard-body">
+      <main class="content">
+        <section id="page-home" class="page">
+          <h1>Willkommen, <span id="welcome-name">...</span></h1>
+          <p class="muted">Wähle links einen Menüpunkt, um weitere Bereiche zu öffnen.</p>
+        </section>
 
-      <form id="add-user-form" class="add-user-form">
-        <input type="text" id="new-username" placeholder="Benutzername" required>
-        <input type="password" id="new-password" placeholder="Passwort" required minlength="6">
-        <select id="new-role">
-          <option value="user">Nutzer</option>
-          <option value="admin">Admin</option>
-        </select>
-        <label class="checkbox-label">
-          <input type="checkbox" id="new-can-manage">
-          Darf Nutzer verwalten
-        </label>
-        <button type="submit">Nutzer hinzufügen</button>
-      </form>
-      <p id="add-user-error" class="error"></p>
+        <section id="page-admin" class="page" hidden>
+          <h2>Benutzerverwaltung</h2>
 
-      <table class="user-table">
-        <thead>
-          <tr>
-            <th>Benutzername</th>
-            <th>Rolle</th>
-            <th>Status</th>
-            <th>Verwalten-Recht</th>
-            <th>Aktionen</th>
-          </tr>
-        </thead>
-        <tbody id="user-table-body"></tbody>
-      </table>
-    </section>
+          <form id="add-user-form" class="add-user-form">
+            <input type="text" id="new-username" placeholder="Benutzername" required>
+            <input type="password" id="new-password" placeholder="Passwort" required minlength="6">
+            <select id="new-role">
+              <option value="user">Nutzer</option>
+              <option value="admin">Admin</option>
+            </select>
+            <label class="checkbox-label">
+              <input type="checkbox" id="new-can-manage">
+              Darf Nutzer verwalten
+            </label>
+            <button type="submit">Nutzer hinzufügen</button>
+          </form>
+          <p id="add-user-error" class="error"></p>
+
+          <table class="user-table">
+            <thead>
+              <tr>
+                <th>Benutzername</th>
+                <th>Rolle</th>
+                <th>Status</th>
+                <th>Verwalten-Recht</th>
+                <th>Aktionen</th>
+              </tr>
+            </thead>
+            <tbody id="user-table-body"></tbody>
+          </table>
+        </section>
+      </main>
+
+      <nav class="sidebar">
+        <ul class="nav-list">
+          <li><button class="nav-item active" data-page="home">Startseite</button></li>
+        </ul>
+        <button id="logout-btn" class="logout-btn">&gt; Logout</button>
+      </nav>
+    </div>
   </div>
 
   <script type="module" src="dashboard.js"></script>

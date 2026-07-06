@@ -21,12 +21,29 @@ import {
 
 const welcomeName = document.getElementById("welcome-name");
 const logoutBtn = document.getElementById("logout-btn");
-const adminPanel = document.getElementById("admin-panel");
+const adminBtn = document.getElementById("admin-btn");
 const addUserForm = document.getElementById("add-user-form");
 const addUserError = document.getElementById("add-user-error");
 const userTableBody = document.getElementById("user-table-body");
+const navItems = document.querySelectorAll(".nav-item");
+const pages = document.querySelectorAll(".page");
 
 let currentUid = null;
+
+function showPage(pageName) {
+  pages.forEach((page) => {
+    page.hidden = page.id !== `page-${pageName}`;
+  });
+  navItems.forEach((item) => {
+    item.classList.toggle("active", item.dataset.page === pageName);
+  });
+}
+
+navItems.forEach((item) => {
+  item.addEventListener("click", () => showPage(item.dataset.page));
+});
+
+adminBtn.addEventListener("click", () => showPage("admin"));
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -55,7 +72,7 @@ onAuthStateChanged(auth, async (user) => {
   welcomeName.textContent = profile.username;
 
   if (profile.canManageUsers) {
-    adminPanel.hidden = false;
+    adminBtn.hidden = false;
     watchUsers();
   }
 });
