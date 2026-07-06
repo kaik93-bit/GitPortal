@@ -8,6 +8,72 @@
   --neon-red: #ff2b53;
   --text: #e4e4ff;
   --muted: #7b7fa8;
+  --panel-bg: rgba(10, 4, 30, 0.7);
+  --panel-shadow: 0 0 12px rgba(0, 255, 242, 0.4), 0 0 40px rgba(157, 0, 255, 0.25);
+  --glow: 16px;
+  --glow-sm: 12px;
+}
+
+:root[data-theme="dark"] {
+  --bg: #121212;
+  --bg-alt: #1c1c1c;
+  --neon-cyan: #4fc3f7;
+  --neon-pink: #c77dff;
+  --neon-purple: #9a8cff;
+  --neon-yellow: #d9c65f;
+  --neon-red: #ef5350;
+  --text: #e8e8e8;
+  --muted: #9a9a9a;
+  --panel-bg: #1a1a1a;
+  --panel-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  --glow: 0px;
+  --glow-sm: 0px;
+}
+
+:root[data-theme="white"] {
+  --bg: #f4f4f6;
+  --bg-alt: #e6e6ec;
+  --neon-cyan: #1565c0;
+  --neon-pink: #ad1457;
+  --neon-purple: #6a1b9a;
+  --neon-yellow: #b8860b;
+  --neon-red: #c62828;
+  --text: #1a1a1a;
+  --muted: #666666;
+  --panel-bg: #ffffff;
+  --panel-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  --glow: 0px;
+  --glow-sm: 0px;
+}
+
+:root[data-theme="dark"] body,
+:root[data-theme="white"] body {
+  animation: none;
+  background: var(--bg);
+}
+
+:root[data-theme="dark"] .scanlines,
+:root[data-theme="white"] .scanlines {
+  display: none;
+}
+
+:root[data-theme="dark"] .glitch::before,
+:root[data-theme="dark"] .glitch::after,
+:root[data-theme="white"] .glitch::before,
+:root[data-theme="white"] .glitch::after {
+  display: none;
+}
+
+:root[data-theme="dark"] .glitch,
+:root[data-theme="white"] .glitch {
+  text-shadow: none;
+}
+
+:root[data-theme="dark"] .auth-box,
+:root[data-theme="dark"] .dashboard,
+:root[data-theme="white"] .auth-box,
+:root[data-theme="white"] .dashboard {
+  backdrop-filter: none;
 }
 
 * {
@@ -109,12 +175,12 @@ h1 {
 .auth-box {
   position: relative;
   z-index: 2;
-  background: rgba(10, 4, 30, 0.7);
+  background: var(--panel-bg);
   backdrop-filter: blur(6px);
   padding: 40px 32px;
   border-radius: 6px;
   border: 1px solid var(--neon-cyan);
-  box-shadow: 0 0 12px rgba(0, 255, 242, 0.4), 0 0 40px rgba(157, 0, 255, 0.25), inset 0 0 20px rgba(0, 255, 242, 0.05);
+  box-shadow: var(--panel-shadow);
   width: 100%;
   max-width: 380px;
   margin-top: 8vh;
@@ -176,7 +242,7 @@ button {
 button:hover {
   background: var(--neon-cyan);
   color: #05010d;
-  box-shadow: 0 0 16px var(--neon-cyan);
+  box-shadow: 0 0 var(--glow) var(--neon-cyan);
 }
 
 .auth-box button {
@@ -193,12 +259,12 @@ button:hover {
 .dashboard {
   position: relative;
   z-index: 2;
-  background: rgba(10, 4, 30, 0.7);
+  background: var(--panel-bg);
   backdrop-filter: blur(6px);
   padding: 32px;
   border-radius: 6px;
   border: 1px solid var(--neon-purple);
-  box-shadow: 0 0 12px rgba(157, 0, 255, 0.4), 0 0 40px rgba(0, 255, 242, 0.15);
+  box-shadow: var(--panel-shadow);
   width: 100%;
   max-width: 960px;
 }
@@ -227,7 +293,7 @@ button:hover {
 .admin-btn:hover {
   background: var(--neon-pink);
   color: #05010d;
-  box-shadow: 0 0 16px var(--neon-pink);
+  box-shadow: 0 0 var(--glow) var(--neon-pink);
 }
 
 .dashboard-body {
@@ -279,13 +345,13 @@ button:hover {
 .nav-item.active {
   border-color: var(--neon-cyan);
   color: var(--neon-cyan);
-  box-shadow: 0 0 10px rgba(0, 255, 242, 0.5);
+  box-shadow: 0 0 var(--glow-sm) var(--neon-cyan);
 }
 
 .nav-item:hover {
   background: var(--neon-purple);
   color: #05010d;
-  box-shadow: 0 0 16px var(--neon-purple);
+  box-shadow: 0 0 var(--glow) var(--neon-purple);
 }
 
 .logout-btn {
@@ -297,7 +363,7 @@ button:hover {
 .logout-btn:hover {
   background: var(--neon-red);
   color: #05010d;
-  box-shadow: 0 0 16px var(--neon-red);
+  box-shadow: 0 0 var(--glow) var(--neon-red);
 }
 
 .page h2 {
@@ -324,7 +390,7 @@ button:hover {
 .add-user-form button:hover {
   background: var(--neon-yellow);
   color: #05010d;
-  box-shadow: 0 0 16px var(--neon-yellow);
+  box-shadow: 0 0 var(--glow) var(--neon-yellow);
 }
 
 .checkbox-label {
@@ -387,7 +453,7 @@ button:hover {
 .user-table button[data-action="ban"]:hover {
   background: var(--neon-red);
   color: #05010d;
-  box-shadow: 0 0 12px var(--neon-red);
+  box-shadow: 0 0 var(--glow-sm) var(--neon-red);
 }
 
 .user-table button[data-action="timeout"] {
@@ -398,7 +464,7 @@ button:hover {
 .user-table button[data-action="timeout"]:hover {
   background: var(--neon-yellow);
   color: #05010d;
-  box-shadow: 0 0 12px var(--neon-yellow);
+  box-shadow: 0 0 var(--glow-sm) var(--neon-yellow);
 }
 
 .user-table button[data-action="remove"] {
@@ -409,5 +475,84 @@ button:hover {
 .user-table button[data-action="remove"]:hover {
   background: var(--neon-pink);
   color: #05010d;
-  box-shadow: 0 0 12px var(--neon-pink);
+  box-shadow: 0 0 var(--glow-sm) var(--neon-pink);
+}
+
+.settings-block {
+  margin-bottom: 32px;
+}
+
+.settings-block h3 {
+  font-family: "Orbitron", sans-serif;
+  color: var(--neon-cyan);
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.theme-switcher {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.theme-btn.active {
+  background: var(--neon-cyan);
+  color: #05010d;
+  box-shadow: 0 0 var(--glow) var(--neon-cyan);
+}
+
+.settings-block label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+#volume-range {
+  width: 100%;
+  max-width: 320px;
+  accent-color: var(--neon-cyan);
+}
+
+.password-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  max-width: 420px;
+}
+
+.password-form input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 12px;
+  border-radius: 3px;
+  border: 1px solid var(--neon-purple);
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--neon-cyan);
+  outline: none;
+}
+
+:root[data-theme="white"] .password-form input,
+:root[data-theme="white"] .auth-box input,
+:root[data-theme="white"] .add-user-form input,
+:root[data-theme="white"] .add-user-form select {
+  background: #fff;
+  color: var(--text);
+}
+
+:root[data-theme="dark"] .password-form input,
+:root[data-theme="dark"] .auth-box input,
+:root[data-theme="dark"] .add-user-form input,
+:root[data-theme="dark"] .add-user-form select {
+  background: #0a0a0a;
+  color: var(--text);
+}
+
+.success {
+  color: #2e7d32;
+  min-height: 1.2em;
+  font-size: 0.85rem;
 }

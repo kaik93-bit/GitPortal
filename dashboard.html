@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - GitPortal</title>
+  <script src="theme.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -21,6 +22,37 @@
         <section id="page-home" class="page">
           <h1>Willkommen, <span id="welcome-name">...</span></h1>
           <p class="muted">Wähle links einen Menüpunkt, um weitere Bereiche zu öffnen.</p>
+        </section>
+
+        <section id="page-settings" class="page" hidden>
+          <h2>Einstellungen</h2>
+
+          <div class="settings-block">
+            <h3>Layout</h3>
+            <div class="theme-switcher">
+              <button type="button" class="theme-btn" data-theme-choice="cyberpunk">Cyberpunk</button>
+              <button type="button" class="theme-btn" data-theme-choice="dark">Dark</button>
+              <button type="button" class="theme-btn" data-theme-choice="white">White</button>
+            </div>
+          </div>
+
+          <div class="settings-block">
+            <h3>Sound</h3>
+            <label for="volume-range">Lautstärke: <span id="volume-value">50</span>%</label>
+            <input type="range" id="volume-range" min="0" max="100" value="50">
+            <p class="muted">Sounds werden in einem späteren Update ergänzt, die Lautstärke wird bereits gespeichert.</p>
+          </div>
+
+          <div class="settings-block">
+            <h3>Passwort ändern</h3>
+            <form id="password-form" class="password-form">
+              <input type="password" id="current-password" placeholder="Aktuelles Passwort" required autocomplete="current-password">
+              <input type="password" id="new-password-field" placeholder="Neues Passwort" required minlength="6" autocomplete="new-password">
+              <input type="password" id="confirm-password" placeholder="Neues Passwort bestätigen" required minlength="6" autocomplete="new-password">
+              <button type="submit">Passwort ändern</button>
+            </form>
+            <p id="password-message" class="error"></p>
+          </div>
         </section>
 
         <section id="page-admin" class="page" hidden>
@@ -59,6 +91,7 @@
       <nav class="sidebar">
         <ul class="nav-list">
           <li><button class="nav-item active" data-page="home">Startseite</button></li>
+          <li><button class="nav-item" data-page="settings">Einstellungen</button></li>
         </ul>
         <button id="logout-btn" class="logout-btn">&gt; Logout</button>
       </nav>

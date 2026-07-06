@@ -6,6 +6,9 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signOut as signOutSecondary,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updatePassword,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
   doc,
@@ -27,8 +30,64 @@ const addUserError = document.getElementById("add-user-error");
 const userTableBody = document.getElementById("user-table-body");
 const navItems = document.querySelectorAll(".nav-item");
 const pages = document.querySelectorAll(".page");
+const themeButtons = document.querySelectorAll(".theme-btn");
+const volumeRange = document.getElementById("volume-range");
+const volumeValue = document.getElementById("volume-value");
+const passwordForm = document.getElementById("password-form");
+const passwordMessage = document.getElementById("password-message");
 
 let currentUid = null;
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("gitportal-theme", theme);
+  themeButtons.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.themeChoice === theme);
+  });
+}
+
+applyTheme(localStorage.getItem("gitportal-theme") || "cyberpunk");
+
+themeButtons.forEach((btn) => {
+  btn.addEventListener("click", () => applyTheme(btn.dataset.themeChoice));
+});
+
+const savedVolume = localStorage.getItem("gitportal-volume") || "50";
+volumeRange.value = savedVolume;
+volumeValue.textContent = savedVolume;
+
+volumeRange.addEventListener("input", () => {
+  volumeValue.textContent = volumeRange.value;
+  localStorage.setItem("gitportal-volume", volumeRange.value);
+});
+
+passwordForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  passwordMessage.textContent = "";
+
+  const currentPassword = document.getElementById("current-password").value;
+  const newPassword = document.getElementById("new-password-field").value;
+  const confirmPassword = document.getElementById("confirm-password").value;
+
+  if (newPassword !== confirmPassword) {
+    passwordMessage.textContent = "Die neuen Passwörter stimmen nicht überein.";
+    return;
+  }
+
+  try {
+    const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+    await reauthenticateWithCredential(auth.currentUser, credential);
+    await updatePassword(auth.currentUser, newPassword);
+    passwordMessage.classList.remove("error");
+    passwordMessage.classList.add("success");
+    passwordMessage.textContent = "Passwort erfolgreich geändert.";
+    passwordForm.reset();
+  } catch (err) {
+    passwordMessage.classList.remove("success");
+    passwordMessage.classList.add("error");
+    passwordMessage.textContent = "Aktuelles Passwort falsch oder Fehler beim Ändern.";
+  }
+});
 
 function showPage(pageName) {
   pages.forEach((page) => {
