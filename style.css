@@ -676,6 +676,10 @@ button:hover {
   padding: 8px 10px;
 }
 
+.emoji-picker[hidden] {
+  display: none;
+}
+
 .emoji-picker {
   position: absolute;
   bottom: 110%;
