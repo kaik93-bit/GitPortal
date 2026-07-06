@@ -626,16 +626,22 @@ button:hover {
   word-break: break-word;
 }
 
-.chat-msg-actions {
-  margin-top: 6px;
-  display: flex;
-  gap: 6px;
-  opacity: 0.3;
-  transition: opacity 0.15s;
+.chat-message-actionable {
+  cursor: pointer;
 }
 
-.chat-message:hover .chat-msg-actions {
-  opacity: 1;
+.chat-message-actionable:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.chat-msg-actions {
+  margin-top: 6px;
+  display: none;
+  gap: 6px;
+}
+
+.chat-message-actionable.actions-visible .chat-msg-actions {
+  display: flex;
 }
 
 .chat-msg-actions button {

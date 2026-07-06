@@ -273,38 +273,67 @@ function renderMessage(id, data) {
   div.appendChild(textP);
 
   if (isCurrentAdmin && data.uid !== currentUid) {
+    div.classList.add("chat-message-actionable");
+    div.addEventListener("click", () => {
+      div.classList.toggle("actions-visible");
+    });
+
     const actions = document.createElement("div");
     actions.className = "chat-msg-actions";
 
     const banBtn = document.createElement("button");
     banBtn.type = "button";
     banBtn.textContent = "Chat-Bann";
-    banBtn.addEventListener("click", () => toggleChatBan(data.uid));
+    banBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleChatBan(data.uid, id);
+    });
 
     const timeoutBtn = document.createElement("button");
     timeoutBtn.type = "button";
     timeoutBtn.textContent = "Chat-Timeout";
-    timeoutBtn.addEventListener("click", () => chatTimeout(data.uid));
+    timeoutBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      chatTimeout(data.uid, id);
+    });
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.textContent = "Nachricht löschen";
+    deleteBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      deleteMessage(id);
+    });
 
     actions.appendChild(banBtn);
     actions.appendChild(timeoutBtn);
+    actions.appendChild(deleteBtn);
     div.appendChild(actions);
   }
 
   return div;
 }
 
-async function toggleChatBan(uid) {
+async function toggleChatBan(uid, messageId) {
   const snap = await getDoc(doc(db, "users", uid));
   if (!snap.exists()) return;
-  await updateDoc(doc(db, "users", uid), { chatBanned: !snap.data().chatBanned });
+  const newBanned = !snap.data().chatBanned;
+  await updateDoc(doc(db, "users", uid), { chatBanned: newBanned });
+  if (newBanned) {
+    await deleteMessage(messageId);
+  }
 }
 
-async function chatTimeout(uid) {
+async function chatTimeout(uid, messageId) {
   const minutes = prompt("Chat-Timeout in Minuten:", "5");
   if (!minutes || isNaN(minutes)) return;
   const until = new Date(Date.now() + Number(minutes) * 60000);
   await updateDoc(doc(db, "users", uid), { chatBannedUntil: Timestamp.fromDate(until) });
+  await deleteMessage(messageId);
+}
+
+async function deleteMessage(messageId) {
+  await deleteDoc(doc(db, "messages", messageId));
 }
 
 chatForm.addEventListener("submit", async (event) => {
