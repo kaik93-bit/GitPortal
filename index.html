@@ -4,13 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GitPortal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="auth-box" style="text-align:center;">
-    <h1 id="content">GitPortal</h1>
-    <p><a href="login.html">Zum Login</a></p>
+  <div class="scanlines"></div>
+  <div class="auth-box">
+    <h1 class="glitch" data-text="GITPORTAL">GITPORTAL</h1>
+    <form id="login-form">
+      <label for="username">Benutzername</label>
+      <input type="text" id="username" required autocomplete="username">
+
+      <label for="password">Passwort</label>
+      <input type="password" id="password" required autocomplete="current-password">
+
+      <button type="submit">&gt; Anmelden</button>
+      <p id="error" class="error"></p>
+    </form>
   </div>
-  <script src="script.js"></script>
+
+  <script type="module" src="login.js"></script>
 </body>
 </html>

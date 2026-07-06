@@ -30,7 +30,7 @@ let currentUid = null;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.href = "login.html";
+    window.location.href = "index.html";
     return;
   }
 
@@ -38,7 +38,7 @@ onAuthStateChanged(auth, async (user) => {
 
   if (!profileSnap.exists()) {
     await signOut(auth);
-    window.location.href = "login.html";
+    window.location.href = "index.html";
     return;
   }
 
@@ -47,7 +47,7 @@ onAuthStateChanged(auth, async (user) => {
 
   if (profile.banned || (profile.bannedUntil && profile.bannedUntil.toDate() > now)) {
     await signOut(auth);
-    window.location.href = "login.html";
+    window.location.href = "index.html";
     return;
   }
 
@@ -62,7 +62,7 @@ onAuthStateChanged(auth, async (user) => {
 
 logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 });
 
 function watchUsers() {
