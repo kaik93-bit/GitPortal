@@ -302,7 +302,9 @@ function renderMessage(id, data) {
     deleteBtn.textContent = "Nachricht löschen";
     deleteBtn.addEventListener("click", (event) => {
       event.stopPropagation();
-      deleteMessage(id);
+      if (confirm("Nachricht wirklich löschen?")) {
+        deleteMessage(id);
+      }
     });
 
     actions.appendChild(banBtn);
@@ -370,10 +372,11 @@ function renderUserRow(uid, data) {
   const row = document.createElement("tr");
 
   const now = new Date();
+  const hasActiveTimeout = data.bannedUntil && data.bannedUntil.toDate() > now;
   let status = "Aktiv";
   if (data.banned) {
     status = "Gesperrt";
-  } else if (data.bannedUntil && data.bannedUntil.toDate() > now) {
+  } else if (hasActiveTimeout) {
     status = `Timeout bis ${data.bannedUntil.toDate().toLocaleString("de-DE")}`;
   }
 
@@ -385,6 +388,7 @@ function renderUserRow(uid, data) {
     <td>
       <button data-action="ban">${data.banned ? "Entsperren" : "Sperren"}</button>
       <button data-action="timeout">Timeout</button>
+      ${hasActiveTimeout ? '<button data-action="undo-timeout">Timeout aufheben</button>' : ""}
       <button data-action="remove">Entfernen</button>
     </td>
   `;
@@ -403,6 +407,12 @@ function renderUserRow(uid, data) {
     const until = new Date(Date.now() + Number(minutes) * 60000);
     updateDoc(doc(db, "users", uid), { bannedUntil: Timestamp.fromDate(until) });
   });
+
+  if (hasActiveTimeout) {
+    row.querySelector('[data-action="undo-timeout"]').addEventListener("click", () => {
+      updateDoc(doc(db, "users", uid), { bannedUntil: null });
+    });
+  }
 
   row.querySelector('[data-action="remove"]').addEventListener("click", () => {
     if (uid === currentUid) {
