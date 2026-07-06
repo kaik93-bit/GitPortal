@@ -24,6 +24,31 @@
           <p class="muted">Wähle links einen Menüpunkt, um weitere Bereiche zu öffnen.</p>
         </section>
 
+        <section id="page-chat" class="page" hidden>
+          <h2>Chat</h2>
+
+          <div class="chat-layout">
+            <div class="chat-main">
+              <div id="chat-messages" class="chat-messages"></div>
+
+              <form id="chat-form" class="chat-form">
+                <div class="emoji-wrap">
+                  <button type="button" id="emoji-toggle">😀</button>
+                  <div id="emoji-picker" class="emoji-picker" hidden></div>
+                </div>
+                <input type="text" id="chat-input" placeholder="Nachricht schreiben..." maxlength="500" required>
+                <button type="submit">Senden</button>
+              </form>
+              <p id="chat-error" class="error"></p>
+            </div>
+
+            <aside class="chat-online">
+              <h3>Online</h3>
+              <ul id="online-list" class="online-list"></ul>
+            </aside>
+          </div>
+        </section>
+
         <section id="page-settings" class="page" hidden>
           <h2>Einstellungen</h2>
 
@@ -91,6 +116,7 @@
       <nav class="sidebar">
         <ul class="nav-list">
           <li><button class="nav-item active" data-page="home">Startseite</button></li>
+          <li><button class="nav-item" data-page="chat">Chat</button></li>
           <li><button class="nav-item" data-page="settings">Einstellungen</button></li>
         </ul>
         <button id="logout-btn" class="logout-btn">&gt; Logout</button>

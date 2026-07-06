@@ -16,11 +16,17 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  addDoc,
   collection,
+  query,
+  orderBy,
+  limit,
   onSnapshot,
   serverTimestamp,
   Timestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+const EMOJIS = ["😀", "😂", "😍", "👍", "❤️", "🔥", "🎉", "👀", "🙌", "😢", "😡", "🤔", "😎", "🥳", "👋", "💯"];
 
 const welcomeName = document.getElementById("welcome-name");
 const logoutBtn = document.getElementById("logout-btn");
@@ -35,8 +41,35 @@ const volumeRange = document.getElementById("volume-range");
 const volumeValue = document.getElementById("volume-value");
 const passwordForm = document.getElementById("password-form");
 const passwordMessage = document.getElementById("password-message");
+const chatMessages = document.getElementById("chat-messages");
+const chatForm = document.getElementById("chat-form");
+const chatInput = document.getElementById("chat-input");
+const chatError = document.getElementById("chat-error");
+const chatSubmitBtn = chatForm.querySelector('button[type="submit"]');
+const onlineList = document.getElementById("online-list");
+const emojiToggle = document.getElementById("emoji-toggle");
+const emojiPicker = document.getElementById("emoji-picker");
 
 let currentUid = null;
+let currentProfile = null;
+let isCurrentAdmin = false;
+let usersWatchStarted = false;
+
+EMOJIS.forEach((emoji) => {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = emoji;
+  btn.addEventListener("click", () => {
+    chatInput.value += emoji;
+    emojiPicker.hidden = true;
+    chatInput.focus();
+  });
+  emojiPicker.appendChild(btn);
+});
+
+emojiToggle.addEventListener("click", () => {
+  emojiPicker.hidden = !emojiPicker.hidden;
+});
 
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
@@ -104,41 +137,195 @@ navItems.forEach((item) => {
 
 adminBtn.addEventListener("click", () => showPage("admin"));
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "index.html";
     return;
   }
 
-  const profileSnap = await getDoc(doc(db, "users", user.uid));
-
-  if (!profileSnap.exists()) {
-    await signOut(auth);
-    window.location.href = "index.html";
-    return;
-  }
-
-  const profile = profileSnap.data();
-  const now = new Date();
-
-  if (profile.banned || (profile.bannedUntil && profile.bannedUntil.toDate() > now)) {
-    await signOut(auth);
-    window.location.href = "index.html";
-    return;
-  }
-
   currentUid = user.uid;
-  welcomeName.textContent = profile.username;
 
-  if (profile.canManageUsers) {
-    adminBtn.hidden = false;
-    watchUsers();
-  }
+  onSnapshot(doc(db, "users", user.uid), async (snap) => {
+    if (!snap.exists()) {
+      await signOut(auth);
+      window.location.href = "index.html";
+      return;
+    }
+
+    const profile = snap.data();
+    const now = new Date();
+
+    if (profile.banned || (profile.bannedUntil && profile.bannedUntil.toDate() > now)) {
+      await signOut(auth);
+      window.location.href = "index.html";
+      return;
+    }
+
+    currentProfile = profile;
+    isCurrentAdmin = !!profile.canManageUsers;
+    welcomeName.textContent = profile.username;
+    adminBtn.hidden = !isCurrentAdmin;
+    updateChatFormState();
+
+    if (isCurrentAdmin && !usersWatchStarted) {
+      usersWatchStarted = true;
+      watchUsers();
+    }
+  });
+
+  startPresenceHeartbeat(user.uid);
+  watchOnlineUsers();
+  watchMessages();
 });
 
 logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
   window.location.href = "index.html";
+});
+
+function startPresenceHeartbeat(uid) {
+  const ping = () => updateDoc(doc(db, "users", uid), { lastSeen: serverTimestamp() });
+  ping();
+  setInterval(ping, 20000);
+}
+
+function updateChatFormState() {
+  const now = new Date();
+  const banned =
+    currentProfile.chatBanned || (currentProfile.chatBannedUntil && currentProfile.chatBannedUntil.toDate() > now);
+  chatInput.disabled = banned;
+  chatSubmitBtn.disabled = banned;
+  chatError.textContent = banned ? "Du bist aktuell für den Chat gesperrt." : "";
+}
+
+function watchOnlineUsers() {
+  onSnapshot(collection(db, "users"), (snapshot) => {
+    onlineList.innerHTML = "";
+    const now = Date.now();
+
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const lastSeenMs = data.lastSeen ? data.lastSeen.toDate().getTime() : 0;
+      if (now - lastSeenMs > 60000) return;
+
+      const li = document.createElement("li");
+
+      const dot = document.createElement("span");
+      dot.className = "online-dot";
+      li.appendChild(dot);
+
+      li.appendChild(document.createTextNode(" " + data.username));
+
+      if (data.role === "admin") {
+        const badge = document.createElement("span");
+        badge.className = "admin-tag";
+        badge.textContent = "ADMIN";
+        li.appendChild(badge);
+      }
+
+      onlineList.appendChild(li);
+    });
+  });
+}
+
+function watchMessages() {
+  const q = query(collection(db, "messages"), orderBy("createdAt", "asc"), limit(100));
+  onSnapshot(q, (snapshot) => {
+    chatMessages.innerHTML = "";
+    snapshot.forEach((docSnap) => {
+      chatMessages.appendChild(renderMessage(docSnap.id, docSnap.data()));
+    });
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
+}
+
+function renderMessage(id, data) {
+  const div = document.createElement("div");
+  div.className = "chat-message" + (data.role === "admin" ? " chat-message-admin" : "");
+
+  const header = document.createElement("div");
+  header.className = "chat-message-header";
+
+  const usernameSpan = document.createElement("span");
+  usernameSpan.className = "chat-username";
+  usernameSpan.textContent = data.username;
+  header.appendChild(usernameSpan);
+
+  if (data.role === "admin") {
+    const badge = document.createElement("span");
+    badge.className = "admin-tag";
+    badge.textContent = "ADMIN";
+    header.appendChild(badge);
+  }
+
+  const timeSpan = document.createElement("span");
+  timeSpan.className = "chat-time";
+  timeSpan.textContent = data.createdAt
+    ? data.createdAt.toDate().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })
+    : "";
+  header.appendChild(timeSpan);
+
+  div.appendChild(header);
+
+  const textP = document.createElement("p");
+  textP.className = "chat-text";
+  textP.textContent = data.text;
+  div.appendChild(textP);
+
+  if (isCurrentAdmin && data.uid !== currentUid) {
+    const actions = document.createElement("div");
+    actions.className = "chat-msg-actions";
+
+    const banBtn = document.createElement("button");
+    banBtn.type = "button";
+    banBtn.textContent = "Chat-Bann";
+    banBtn.addEventListener("click", () => toggleChatBan(data.uid));
+
+    const timeoutBtn = document.createElement("button");
+    timeoutBtn.type = "button";
+    timeoutBtn.textContent = "Chat-Timeout";
+    timeoutBtn.addEventListener("click", () => chatTimeout(data.uid));
+
+    actions.appendChild(banBtn);
+    actions.appendChild(timeoutBtn);
+    div.appendChild(actions);
+  }
+
+  return div;
+}
+
+async function toggleChatBan(uid) {
+  const snap = await getDoc(doc(db, "users", uid));
+  if (!snap.exists()) return;
+  await updateDoc(doc(db, "users", uid), { chatBanned: !snap.data().chatBanned });
+}
+
+async function chatTimeout(uid) {
+  const minutes = prompt("Chat-Timeout in Minuten:", "5");
+  if (!minutes || isNaN(minutes)) return;
+  const until = new Date(Date.now() + Number(minutes) * 60000);
+  await updateDoc(doc(db, "users", uid), { chatBannedUntil: Timestamp.fromDate(until) });
+}
+
+chatForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  chatError.textContent = "";
+
+  const text = chatInput.value.trim();
+  if (!text) return;
+
+  try {
+    await addDoc(collection(db, "messages"), {
+      uid: currentUid,
+      username: currentProfile.username,
+      role: currentProfile.role,
+      text,
+      createdAt: serverTimestamp(),
+    });
+    chatInput.value = "";
+  } catch (err) {
+    chatError.textContent = "Nachricht konnte nicht gesendet werden.";
+  }
 });
 
 function watchUsers() {
@@ -222,6 +409,9 @@ addUserForm.addEventListener("submit", async (event) => {
       canManageUsers,
       banned: false,
       bannedUntil: null,
+      chatBanned: false,
+      chatBannedUntil: null,
+      lastSeen: null,
       createdAt: serverTimestamp(),
     });
 
